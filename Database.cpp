@@ -24,7 +24,8 @@ int main ()
 		    2. Efetuar um saque de uma conta\n\t\
 		    3. Consultar o saldo de uma conta\n\t\
 		    4. Consultar o saldo geral\n\t\
-		    5. Finalizar o programa:\n\n\t ");
+		    5. Finalizar o programa:\n\n\t "); 
+		    // Antes da mudanca os dois pontos eram depoist do \t
             scanf ("%d", &codigo);
             switch (codigo){
             case 1:
