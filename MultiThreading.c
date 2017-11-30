@@ -10,16 +10,16 @@ char string[24];
 
 void *wait(void *x)
 {
-  sem_wait(&sem);
+  sem_wait(&sem); // Esperar até o usuario der uma string para mostrar para a gente
   printf("Voce digitou: %s\n", string);
   return NULL;
 }
 
 void *input(void *x)
 {
-  printf("Digite algo para o outro thread fazer printf: ");
+  printf("Digite algo para o outro thread fazer printf: "); 
   scanf("%[^\n]", string);
-  sem_post(&sem);
+  sem_post(&sem); // Mandar sinal dizendo que o outro thread pode continuar
   return NULL;
 }
 
