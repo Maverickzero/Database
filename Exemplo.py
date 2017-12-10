@@ -20,7 +20,7 @@ del conta
 
 codigo = None
 while(codigo != '5'):
-    print('Faca uma escolha entre as seguintes opcoes:',
+    print('\nFaca uma escolha entre as seguintes opcoes:',
           '1. Efetuar um deposito em uma conta',
           '2. Efetuar um saque de uma conta',
           '3. Consultar o saldo de uma conta',
