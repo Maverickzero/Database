@@ -15,13 +15,14 @@ del conta
 
 codigo = None
 while(codigo != '5'):
-    codigo = input('Faca uma escolha entre as seguintes opcoes:\n\
-                   1. Efetuar um deposito em uma conta \n\
-                   2. Efetuar um saque de uma conta \n\
-                   3. Consultar o saldo de uma conta \n\
-                   4. Consultar o saldo em geral \n\
-                   5. Finalizar o programa\n\
-                   Sua Escolha: ')
+    print('Faca uma escolha entre as seguintes opcoes:',
+          '1. Efetuar um deposito em uma conta',
+          '2. Efetuar um saque de uma conta',
+          '3. Consultar o saldo de uma conta',
+          '4. Consultar o saldo em geral',
+          '5. Finalizar o programa',
+          sep='\n')
+    codigo = input('Sua Escolha: ')
     if codigo == '1':
         nr_conta = input('Digite o numero da conta: ')
         if nr_conta in Matriz:
