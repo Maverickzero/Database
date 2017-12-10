@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 Matriz = {}
 while(len(Matriz) < 5):
@@ -20,7 +20,7 @@ while(codigo != '5'):
                    2. Efetuar um saque de uma conta \n\
                    3. Consultar o saldo de uma conta \n\
                    4. Consultar o saldo em geral \n\
-                   5. Finalizar o programa\n
+                   5. Finalizar o programa\n\
                    Sua Escolha: ')
     if codigo == '1':
         nr_conta = input('Digite o numero da conta: ')
