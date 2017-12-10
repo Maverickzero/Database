@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import multiprocessing
 from time import sleep
 
@@ -11,11 +12,11 @@ def do_job(job_id):
 def release_job(job_id):
     print("Doing the first pring and releasing semaphore")
     semaphore.release()
+
 def main():
-    pool = multiprocessing.Pool(6)
-    for job_id in range(6):
-        print("Starting job")
-        pool.apply_async(do_job, [job_id])
+    pool = multiprocessing.Pool(2)
+    pool.apply_async(do_job, [1])
+    pool.apply_async(release_job, [2])
     pool.close()
     pool.join()
 
