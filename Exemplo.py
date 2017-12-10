@@ -32,10 +32,10 @@ while(codigo != '5'):
         nr_conta = input('Digite o numero da conta: ')
         if nr_conta in Matriz:
             try:
-                Matriz[nr_conta] = (Matriz[nr_conta]
-                                    + int(input('Digite a quantidade do depósito: ')))
+                deposito = int(input('Digite a quantidade do depósito: '))
             except ValueError:
                 print('Erro conferindo o valor, você digitou numeros?')
+            Matriz[nr_conta] = Matriz[nr_conta] + deposito
             print('O novo saldo da conta é %d' % Matriz[nr_conta])
         else:
             print('Conta inexistente, tente de novo.')
@@ -44,13 +44,13 @@ while(codigo != '5'):
         if nr_conta in Matriz:
             try:
                 saque = int(input('Digite a quantidade do saque: '))
-                if saque < Matriz[nr_conta]:
-                    Matriz[nr_conta] = Matriz[nr_conta] - saque
-                else:
-                    print('Conta nao tem saldo o suficiente para o saque.')
             except ValueError:
                 print('Erro conferindo o valor, você digitou numeros?')
-            print('O novo saldo da conta é %d' % Matriz[nr_conta])
+            if saque < Matriz[nr_conta]:
+                Matriz[nr_conta] = Matriz[nr_conta] - saque
+                print('O novo saldo da conta é %d' % Matriz[nr_conta])
+            else:
+                print('Conta nao tem saldo o suficiente para o saque.')
         else:
             print('Conta inexistente, tente de novo.')
     elif codigo == '3':
