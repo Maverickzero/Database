@@ -33,7 +33,7 @@ while(codigo != '5'):
         if nr_conta in Matriz:
             try:
                 Matriz[nr_conta] = (Matriz[nr_conta]
-                    + int(input('Digite a quantidade do depósito: ')))
+                                    + int(input('Digite a quantidade do depósito: ')))
             except ValueError:
                 print('Erro conferindo o valor, você digitou numeros?')
             print('O novo saldo da conta é %d' % Matriz[nr_conta])
