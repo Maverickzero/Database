@@ -8,6 +8,7 @@ while(len(Matriz) < 5):
         int(conta)
     except ValueError:
         print('Erro criando conta, você digitou numeros?')
+        continue
     if conta in Matriz:
         print('Conta já existe, tente de novo. ')
         continue
