@@ -4,6 +4,10 @@ Matriz = {}
 while(len(Matriz) < 5):
     conta = ''
     conta = input('Informe o numero da conta: ')
+    try:
+        int(conta)
+    except ValueError:
+        print('Erro criando conta, você digitou numeros?')
     if conta in Matriz:
         print('Conta já existe, tente de novo. ')
         continue
@@ -59,4 +63,8 @@ while(codigo != '5'):
         for conta in Matriz:
             total = total + Matriz[conta]
         print('O saldo geral é %d.' % total)
+    elif codigo == '5':
+        continue
+    else:
+        print('Codigo inexistente, tente de novo.')
 
