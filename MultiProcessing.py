@@ -11,7 +11,7 @@ def do_job(job_id):
     print("Finished job")
 
 def release_job(job_id):
-    print("Doing the first pring and releasing semaphore")
+    print("Doing the first thing and releasing semaphore")
     semaphore.release()
 
 def main():
@@ -23,3 +23,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
