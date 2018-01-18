@@ -7,7 +7,8 @@ class Artist(peewee.Model):
     """
     ORM model of the Artist table
     """
-    name = peewee.CharField()
+    name = peewee.CharField(primary_key = True)
+    address = peewee.CharField(null = True)
 
     class Meta:
         database = database
@@ -18,7 +19,7 @@ class Album(peewee.Model):
     ORM model of album table
     """
     artist = peewee.ForeignKeyField(Artist)
-    title = peewee.CharField()
+    title = peewee.CharField(primary_key = True)
     release_date = peewee.DateTimeField()
     publisher = peewee.CharField()
     media_type = peewee.CharField()

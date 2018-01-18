@@ -5,7 +5,7 @@ import peewee
 
 from models import Album, Artist
 
-new_artist = Artist.create(name="Newsboys")
+new_artist = Artist.create(name="Newsboys", address=None)
 album_one = Album(artist=new_artist,
                   title="Read All About It",
                   release_date=datetime.date(1988,12,1),
@@ -38,6 +38,6 @@ for album in albums:
 
 bands = ["MXPX", "Kutless", "Thousand Foot Krutch"]
 for band in bands:
-    artist = Artist.create(name=band)
+    artist = Artist.create(name=band, address=None)
     artist.save()
 
