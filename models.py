@@ -1,20 +1,37 @@
 import peewee
 import pymysql
 import getpass
-import datetime
+from datetime import datetime
+
+
+def get_or_create(model, db, mod_type, get = None):
+    instance = None
+    args = model.fetch_entry(db, get)
+    try:
+        instance = model.create(**args)
+    except peewee.IntegrityError:
+        if mod_type == 'Artist':
+            instance = model.get(model.name == args['name'])
+        elif mod_type == 'Album':
+            instance = model.get(model.artist == args['artist'])
+    return instance
 
 
 def initialize():
     """
     Function used to initialize the database to work in
     """
-    username = input('Username: ')
-    password = getpass.getpass('Password: ')
-    dbname = input('Database name: ')
+#    username = input('Username: ')
+#    password = getpass.getpass('Password: ')
+#    dbname = input('Database name: ')
+    username = 'jh0wlett'
+    password = '@l3ks@ndri@'
+    dbname = 'testDB'
     try:
         database = peewee.MySQLDatabase(dbname, password = password, user = username)
+        database.connect()
     except peewee.OperationalError:
-        print('Try again')
+        print('Failed logging in.')
         database = None
     return database
 
@@ -26,17 +43,15 @@ class Artist_Model(peewee.Model):
     name = peewee.CharField(primary_key = True)
     address = peewee.CharField(null = True)
 
-    def get_or_create(self, Artist):
-        """
-        Function used to create an entry in the artist table
-        """
-        name = input('Name of the artist: ')
-        address = input('Address of the artist: ')
-        try:
-            new_artist = Artist.get(Artist.name == name)
-        except:
-            new_artist = self.create(name = name, address = address)
-        return new_artist
+    def fetch_entry(db, get = None):
+        if get is None:
+            artist = {
+                     'name': input('Name of the artist: '),
+                     'address': input('Address of the artist: ')
+                     }
+        else:
+            artist = {'name': input('Name of the artist: ')}
+        return artist
 
 
 class Album_Model(peewee.Model):
@@ -44,28 +59,21 @@ class Album_Model(peewee.Model):
     ORM model of album table
     """
     title = peewee.CharField(primary_key = True)
-    release_date = peewee.DateTimeField()
-    publisher = peewee.CharField()
-    media_type = peewee.CharField()
+    release_date = peewee.DateTimeField(null = True)
+    publisher = peewee.CharField(null = True)
+    media_type = peewee.CharField(null = True)
+    artist = peewee.ForeignKeyField(Artist_Model, null = True)
 
-    def get_or_create(self, database, Artist):
-        """
-        Function used to create an entry in the album table
-        """
-        artist = input('Name of the artist: ')
-        artist = Artist.get(Artist.name == artist)
-        title = input('Name of the title: ')
-        release_date = input('Date of release of album (format is 1970-01-01): ')
-        release_date = datetime.datetime.strptime(release_date, '%Y-%m-%d')
-        publisher = input('Name of the publisher: ')
-        media_type = input('Type of media: ')
-        try:
-            new_album = Album.get(Album.title == title)
-        except:
-            new_album =  self.create(artist = artist,
-                                     title = title,
-                                     release_date = release_date,
-                                     publisher = publisher,
-                                     media_type = media_type)
-        return new_album
+    def fetch_entry(db, get = None):
+        if get is None:
+            album = {
+                    'artist': get_or_create(db['Artist'], db, 'Artist', get = True),
+                    'title': input('Name of title: '),
+                    'publisher': input('Name of publisher: '),
+                    'media_type': input('Media type: '),
+                    'release_date': input('Date of release (1970-01-01): ')
+                    }
+        else:
+            album = {'title': input('Name of title: ')}
+        return album
 
