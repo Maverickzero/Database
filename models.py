@@ -4,16 +4,16 @@ import getpass
 from datetime import datetime
 
 
-def get_or_create(model, db, mod_type, get = None):
+def get_or_create(db, mod_type, get = None):
     instance = None
-    args = model.fetch_entry(db, get)
+    args = db[mod_type].fetch_entry(db, get)
     try:
-        instance = model.create(**args)
+        instance = db[mod_type].create(**args)
     except peewee.IntegrityError:
         if mod_type == 'Artist':
-            instance = model.get(model.name == args['name'])
+            instance = db[mod_type].get(db[mod_type].name == args['name'])
         elif mod_type == 'Album':
-            instance = model.get(model.artist == args['artist'])
+            instance = db[mod_type].get(db[mod_type].artist == args['artist'])
     return instance
 
 
@@ -67,7 +67,7 @@ class Album_Model(peewee.Model):
     def fetch_entry(db, get = None):
         if get is None:
             album = {
-                    'artist': get_or_create(db['Artist'], db, 'Artist', get = True),
+                    'artist': get_or_create(db, 'Artist', get = True),
                     'title': input('Name of title: '),
                     'publisher': input('Name of publisher: '),
                     'media_type': input('Media type: '),

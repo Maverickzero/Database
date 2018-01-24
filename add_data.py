@@ -29,8 +29,8 @@ db = {
      'Album': Album
      }
 
-artist = get_or_create(Artist, db, 'Artist')
+artist = get_or_create(db, 'Artist')
 artist.save()
-album = get_or_create(Album, db, 'Album')
+album = get_or_create(db, 'Album')
 album.save()
 
