@@ -36,4 +36,5 @@
 *.db
 executable
 tags
+__pycache__/*
 
