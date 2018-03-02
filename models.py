@@ -4,9 +4,12 @@ import getpass
 from datetime import datetime
 
 
-def get_or_create(db, mod_type, get = None):
+def get_or_create(db: dict, mod_type: str, get: bool = False, dp: bool = False, entry: dict = None):
     instance = None
-    args = db[mod_type].fetch_entry(db, get)
+    if not dp:
+        args = db[mod_type].fetch_entry(db, get)
+    else:
+        args = entry
     try:
         instance = db[mod_type].create(**args)
     except peewee.IntegrityError:
