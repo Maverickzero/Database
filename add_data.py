@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 from window_manager import DBApp
-from models import AlbumModel, ArtistModel, initialize, get_or_create, fetch_fields
+from models import AlbumModel, ArtistModel, initialize
 
 database = initialize()
 if database is None:
     quit()
+
 
 class Artist(ArtistModel):
     """
