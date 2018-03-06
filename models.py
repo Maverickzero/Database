@@ -24,12 +24,9 @@ def initialize():
     """
     Function used to initialize the database to work in
     """
-#    username = input('Username: ')
-#    password = getpass.getpass('Password: ')
-#    dbname = input('Database name: ')
-    username = 'jh0wlett'
-    password = '@l3ks@ndri@'
-    dbname = 'testDB'
+    username = input('Username: ')
+    password = getpass.getpass('Password: ')
+    dbname = input('Database name: ')
     try:
         database = peewee.MySQLDatabase(dbname, password=password, user=username)
         database.connect()
