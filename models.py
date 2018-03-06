@@ -4,16 +4,19 @@ import getpass
 from datetime import datetime
 
 
-def get_or_create(db, mod_type, get = None):
+def get_or_create(db: dict, mod_type: str, get: bool = False, dp: bool = False, entry: dict = None):
     instance = None
-    args = db[mod_type].fetch_entry(db, get)
+    if not dp:
+        args = db[mod_type].fetch_entry(db, get)
+    else:
+        args = entry
     try:
         instance = db[mod_type].create(**args)
     except peewee.IntegrityError:
         if mod_type == 'Artist':
             instance = db[mod_type].get(db[mod_type].name == args['name'])
         elif mod_type == 'Album':
-            instance = db[mod_type].get(db[mod_type].artist == args['artist'])
+            instance = db[mod_type].get(db[mod_type].artist == args['title'])
     return instance
 
 
@@ -28,7 +31,7 @@ def initialize():
     password = '@l3ks@ndri@'
     dbname = 'testDB'
     try:
-        database = peewee.MySQLDatabase(dbname, password = password, user = username)
+        database = peewee.MySQLDatabase(dbname, password=password, user=username)
         database.connect()
     except peewee.OperationalError:
         print('Failed logging in.')
@@ -36,7 +39,19 @@ def initialize():
     return database
 
 
-class Artist_Model(peewee.Model):
+def fetch_fields(db, mod_type):
+    fields = []
+    for key, value in db[mod_type].__dict__.items():
+        if isinstance(value, peewee.FieldDescriptor):
+            fields.append(key)
+    return fields
+
+
+def fetch_tables(db):
+    return db['mgrDatabase'].get_tables()
+
+
+class ArtistModel(peewee.Model):
     """
     ORM model of the Artist table
     """
@@ -54,7 +69,7 @@ class Artist_Model(peewee.Model):
         return artist
 
 
-class Album_Model(peewee.Model):
+class AlbumModel(peewee.Model):
     """
     ORM model of album table
     """
@@ -62,7 +77,7 @@ class Album_Model(peewee.Model):
     release_date = peewee.DateTimeField(null = True)
     publisher = peewee.CharField(null = True)
     media_type = peewee.CharField(null = True)
-    artist = peewee.ForeignKeyField(Artist_Model, null = True)
+    artist = peewee.ForeignKeyField(ArtistModel, null = True)
 
     def fetch_entry(db, get = None):
         if get is None:

@@ -1,36 +1,35 @@
 #!/usr/bin/python3
-
-import datetime
-import peewee
-import pdb
-from models import Album_Model, Artist_Model, initialize, get_or_create
-
+from window_manager import DBApp
+from models import AlbumModel, ArtistModel, initialize
 
 database = initialize()
 if database is None:
     quit()
 
-class Artist(Artist_Model):
+
+class Artist(ArtistModel):
     """
     Setting up the database to store the Artist table in
     """
     class Meta:
         database = database
 
-class Album(Album_Model):
+
+class Album(AlbumModel):
     """
     Setting up the database to store the Album table in
     """
     class Meta:
         database = database
 
+
 db = {
-     'Artist': Artist,
-     'Album': Album
+     'artist': Artist,
+     'album': Album,
+     'mgrDatabase': database
      }
 
-artist = get_or_create(db, 'Artist')
-artist.save()
-album = get_or_create(db, 'Album')
-album.save()
-
+if __name__ == "__main__":
+    app = DBApp()
+    app.startup(db=db)
+    app.mainloop()
