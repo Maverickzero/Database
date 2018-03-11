@@ -1,5 +1,4 @@
 import peewee
-import pymysql
 import getpass
 from datetime import datetime
 
@@ -20,15 +19,15 @@ def get_or_create(db: dict, mod_type: str, get: bool = False, dp: bool = False, 
     return instance
 
 
-def initialize():
+def initialize(username=None, password=None, database=None):
     """
     Function used to initialize the database to work in
     """
-    username = input('Username: ')
-    password = getpass.getpass('Password: ')
-    dbname = input('Database name: ')
+    username = username if username is not None else input('Username: ')
+    password = password if password is not None else getpass.getpass('Password: ')
+    database = database if database is not None else input('Database name: ')
     try:
-        database = peewee.MySQLDatabase(dbname, password=password, user=username)
+        database = peewee.MySQLDatabase(database, password=password, user=username)
         database.connect()
     except peewee.OperationalError:
         print('Failed logging in.')
