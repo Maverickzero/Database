@@ -4,6 +4,15 @@ from datetime import datetime
 
 
 def get_or_create(db: dict, mod_type: str, get: bool = False, dp: bool = False, entry: dict = None):
+    """
+    Get or create an entry from a model corresponding to a certain
+    table in the database.
+    args:
+    db = dictionary containing the models and the database connection
+    mod_type = which model from which the query should be made
+    dp = bool indicating if function is called from a gui
+    entry = dictionary containing entry to be fetched/created
+    """
     instance = None
     if not dp:
         args = db[mod_type].fetch_entry(db, get)
@@ -36,6 +45,10 @@ def initialize(username=None, password=None, database=None):
 
 
 def fetch_fields(db, mod_type):
+    """
+    Function used to return a list of all fields
+    from a certain database model.
+    """
     fields = []
     for key, value in db[mod_type].__dict__.items():
         if isinstance(value, peewee.FieldDescriptor):
@@ -44,6 +57,9 @@ def fetch_fields(db, mod_type):
 
 
 def fetch_tables(db):
+    """
+    Returns a list of all tables inside a database.
+    """
     return db['mgrDatabase'].get_tables()
 
 
@@ -55,6 +71,10 @@ class ArtistModel(peewee.Model):
     address = peewee.CharField(null = True)
 
     def fetch_entry(db, get = None):
+        """
+        Method used for fetching or creating an entry.
+        Used for terminal mode applications.
+        """
         if get is None:
             artist = {
                      'name': input('Name of the artist: '),
@@ -76,6 +96,10 @@ class AlbumModel(peewee.Model):
     artist = peewee.ForeignKeyField(ArtistModel, null = True)
 
     def fetch_entry(db, get = None):
+        """
+        Method used for fetching or creating an entry.
+        Used for terminal mode applications.
+        """
         if get is None:
             album = {
                     'artist': get_or_create(db, 'Artist', get = True),

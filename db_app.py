@@ -1,7 +1,6 @@
-from datetime import datetime
 import tkinter as tk
 
-from copy import copy
+from datetime import datetime
 from functools import partial
 from models import ArtistModel, AlbumModel, fetch_fields, fetch_tables, get_or_create, initialize
 
@@ -20,12 +19,23 @@ class DBApp(tk.Tk):
         self.frames = {}
 
     def show_frame(self, name):
-
+        """
+        Shows frame from controller's frame set.
+        args:
+        name = name of the frame to be shown
+        """
         frame = self.frames[name]
         frame.tkraise()
 
     def add_frame(self, container, entries: list=None, name: str='Start Page'):
-
+        """
+        Creates a new frame of one of the known types, and adds them to the
+        controller frame set.
+        args:
+        container = tk.Frame container to pass to pages
+        entries = entries used by page to create forms and fields
+        name = name of the page
+        """
         if name == 'Login Page':
             frame = LoginPage(container, self)
             frame.grid(row=0, column=0, sticky="nsew")
@@ -39,6 +49,10 @@ class DBApp(tk.Tk):
         self.frames[name] = frame
 
     def startup(self):
+        """
+        Startup the app by creating a frame container and a login frame,
+        and showing the login frame.
+        """
         self.container = tk.Frame(self)
         self.container.pack(side="top", fill="both", expand=True)
 
@@ -49,6 +63,12 @@ class DBApp(tk.Tk):
         self.show_frame('Login Page')
 
     def main_page(self, database):
+        """
+        Creates all table pages and start page, after database
+        connection was succesfully started.
+        args:
+        database = peewee database object
+        """
         db = database
 
         class Artist(ArtistModel):
@@ -88,16 +108,30 @@ class DBApp(tk.Tk):
         self.show_frame('Start Page')
 
 
-class LoginPage(tk.Frame):
-
-    def __init__(self, parent, controller):
+class BasePage(tk.Frame):
+    """
+    Base Page class with needed variables for different
+    applications.
+    """
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Fill in your credentials and database name:", font=LARGE_FONT)
-        label.grid(column=0, row=0)
-
-        self.entries = ['username', 'password', 'database']
+        self.entries = {}
         self.labels = {}
         self.forms = {}
+        self.buttons = {}
+
+
+class LoginPage(BasePage):
+    """
+    Login page that asks for credentials before
+    connecting with database.
+    """
+    def __init__(self, parent, controller):
+        BasePage.__init__(self, parent)
+        self.labels['mgrTitle'] = tk.Label(self, text="Fill in your credentials and database name:", font=LARGE_FONT)
+        self.labels['mgrTitle'].grid(column=0, row=0)
+
+        self.entries = ['username', 'password', 'database']
 
         row = 1
         for entry in self.entries:
@@ -111,13 +145,15 @@ class LoginPage(tk.Frame):
                 self.forms[entry].config(show='*')
             row += 1
 
-        self.button = tk.Button(self, text='Login',
+        self.buttons['login'] = tk.Button(self, text='Login',
                                 command=partial(self.login, controller))
-        self.button.grid(column=0, row=row)
+        self.buttons['login'].grid(column=0, row=row)
 
     def login(self, controller):
         """
         Get credentials from forms after button being pressed and try to login
+        args:
+        controller = app controller needed to show next page
         """
         credentials = {}
         for entry in self.entries:
@@ -132,14 +168,15 @@ class LoginPage(tk.Frame):
             controller.main_page(database)
 
 
-class StartPage(tk.Frame):
-
+class StartPage(BasePage):
+    """
+    Start page containing buttons of each table in
+    the database to be able to update them.
+    """
     def __init__(self, parent, controller, tables: list):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Which entry do you want to add?", font=LARGE_FONT)
-        label.grid(column=0, row=0)
-
-        self.buttons = {}
+        BasePage.__init__(self, parent)
+        self.labels['mgrTitle'] = tk.Label(self, text="Which entry do you want to add?", font=LARGE_FONT)
+        self.labels['mgrTitle'].grid(column=0, row=0)
 
         row = 1
         for table in tables:
@@ -149,17 +186,16 @@ class StartPage(tk.Frame):
             row += 1
 
 
-class EntryPage(tk.Frame):
-
+class EntryPage(BasePage):
+    """
+    Page for adding an entry to the database.
+    """
     def __init__(self, parent, controller, entries: list, name: str):
-        tk.Frame.__init__(self, parent)
+        BasePage.__init__(self, parent)
         self.name = name
 
-        self.label = tk.Label(self, text="Fill in the entries bellow:", font=LARGE_FONT)
-        self.label.grid(column=0, row=0)
-
-        self.labels = {}
-        self.forms = {}
+        self.labels['mgrTitle'] = tk.Label(self, text="Fill in the entries bellow:", font=LARGE_FONT)
+        self.labels['mgrTitle'].grid(column=0, row=0)
 
         self.entries = entries
 
@@ -172,11 +208,16 @@ class EntryPage(tk.Frame):
             self.forms[entry].grid(column=1, row=row)
             row += 1
 
-        self.button = tk.Button(self, text="Add", command=partial(self.add_entry, controller))
-        self.button.grid(column=0, row=row)
+        self.buttons['add'] = tk.Button(self, text="Add", command=partial(self.add_entry, controller))
+        self.buttons['add'].grid(column=0, row=row)
 
     def add_entry(self, controller):
-
+        """
+        Tries to create an entry in the database after gathering
+        strings in the field forms.
+        args:
+        controller = app controller needed to show next page
+        """
         entry_dict = {}
         for entry in self.entries:
             entry_dict[entry] = self.forms[entry].get()
