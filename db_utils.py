@@ -2,10 +2,22 @@ import peewee
 import getpass
 
 
-
 field_types = {
+    'integer': peewee.IntegerField,
+    'bigint': peewee.BigIntegerField,
+    'smallint': peewee.SmallIntegerField,
+    'real': peewee.FloatField,
+    'double precision': peewee.DoubleField,
+    'numeric': peewee.DecimalField,
     'varchar': peewee.CharField,
-    'datetime': peewee.DateField
+    'char': peewee.FixedCharField,
+    'longtext': peewee.TextField,
+    'blob': peewee.BlobField,
+    'varchar(40)': peewee.UUIDField,
+    'datetime': peewee.DateField,
+    'date': peewee.DateField,
+    'time': peewee.TimeField,
+    'bool': peewee.BooleanField
 }
 
 
@@ -22,13 +34,6 @@ def initialize(username=None, password=None, database=None):
         print('Failed logging in.')
         database = None
     return database
-
-
-def fetch_tables(db):
-    """
-    Returns a list of all tables inside a database.
-    """
-    return db['mgrDatabase'].get_tables()
 
 
 def create_models(entries: dict, db, table_name):
