@@ -1,8 +1,8 @@
 import tkinter as tk
 
-from datetime import datetime
 from functools import partial
-from models import ArtistModel, AlbumModel, fetch_fields, fetch_tables, get_or_create, initialize
+from datetime import datetime
+from db_utils import initialize, table_fields, create_models
 
 
 LARGE_FONT = ("Verdana", 12)
@@ -62,50 +62,38 @@ class DBApp(tk.Tk):
         self.add_frame(container=self.container, name='Login Page')
         self.show_frame('Login Page')
 
-    def main_page(self, database):
+    def main_page(self, db):
         """
-        Creates all table pages and start page, after database
-        connection was succesfully started.
+        Creates all table frames and start page.
         args:
-        database = peewee database object
+        db = connected peewee database object
         """
-        db = database
-
-        class Artist(ArtistModel):
-            """
-            Setting up the database to store the Artist table in
-            """
-            class Meta:
-                database = db
-
-
-        class Album(AlbumModel):
-            """
-            Setting up the database to store the Album table in
-            """
-            class Meta:
-                database = db
-
-        db = {
-            'artist': Artist,
-            'album': Album,
-            'mgrDatabase': database
-        }
 
         for child in self.frames['Login Page'].winfo_children():
             child.destroy()
         del self.frames['Login Page']
 
-        self.database = db
+        tables = db.get_tables()
 
-        tables = fetch_tables(db)
+        manager = {'mgrDatabase': db}
 
         for table in tables:
-            entries = fetch_fields(db, table)
-            self.add_frame(container=self.container, entries=entries, name=table)
+            entries = table_fields(db, table)
+            manager[table] = create_models(entries, db, table)
+            self.add_frame(container=self.container, entries=entries.keys(), name=table)
+
+        self.database = manager
 
         self.add_frame(container=self.container, entries=tables)
         self.show_frame('Start Page')
+
+    def exit_protocol(self):
+        """
+        Elegantly closes database before exisiting app.
+        """
+        if self.database is not None:
+            self.database['mgrDatabase'].close()
+        self.destroy()
 
 
 class BasePage(tk.Frame):
@@ -115,7 +103,6 @@ class BasePage(tk.Frame):
     """
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
-        self.entries = {}
         self.labels = {}
         self.forms = {}
         self.buttons = {}
@@ -128,7 +115,8 @@ class LoginPage(BasePage):
     """
     def __init__(self, parent, controller):
         BasePage.__init__(self, parent)
-        self.labels['mgrTitle'] = tk.Label(self, text="Fill in your credentials and database name:", font=LARGE_FONT)
+        self.labels['mgrTitle'] = tk.Label(self, text="Fill in your credentials and database name:",
+                                           font=LARGE_FONT)
         self.labels['mgrTitle'].grid(column=0, row=0)
 
         self.entries = ['username', 'password', 'database']
@@ -161,6 +149,7 @@ class LoginPage(BasePage):
             self.forms[entry].delete(0, 'end')
 
         database = initialize(**credentials)
+        database.connect()
 
         if database is None:
             self.login(controller)
@@ -175,7 +164,8 @@ class StartPage(BasePage):
     """
     def __init__(self, parent, controller, tables: list):
         BasePage.__init__(self, parent)
-        self.labels['mgrTitle'] = tk.Label(self, text="Which entry do you want to add?", font=LARGE_FONT)
+        self.labels['mgrTitle'] = tk.Label(self, text="Which entry do you want to add?",
+                                           font=LARGE_FONT)
         self.labels['mgrTitle'].grid(column=0, row=0)
 
         row = 1
@@ -194,7 +184,8 @@ class EntryPage(BasePage):
         BasePage.__init__(self, parent)
         self.name = name
 
-        self.labels['mgrTitle'] = tk.Label(self, text="Fill in the entries bellow:", font=LARGE_FONT)
+        self.labels['mgrTitle'] = tk.Label(self, text="Fill in the entries bellow:",
+                                           font=LARGE_FONT)
         self.labels['mgrTitle'].grid(column=0, row=0)
 
         self.entries = entries
@@ -208,7 +199,8 @@ class EntryPage(BasePage):
             self.forms[entry].grid(column=1, row=row)
             row += 1
 
-        self.buttons['add'] = tk.Button(self, text="Add", command=partial(self.add_entry, controller))
+        self.buttons['add'] = tk.Button(self, text="Add",
+                                        command=partial(self.add_entry, controller))
         self.buttons['add'].grid(column=0, row=row)
 
     def add_entry(self, controller):
@@ -225,12 +217,21 @@ class EntryPage(BasePage):
                 entry_dict[entry] = datetime.strptime(entry_dict[entry], '%Y-%m-%d')
             self.forms[entry].delete(0, 'end')
 
-        get_or_create(db=controller.database, mod_type=self.name, entry=entry_dict, dp=True)
+        try:
+            controller.database[self.name].get_or_create(**entry_dict)
+        except peewee.IntegrityError:
+            """
+            To do: handle integrity checks when trying to create an entry in a table
+            that is referencing an inexistent entry in another
+            """
+            pass
+
         controller.show_frame('Start Page')
 
 
 if __name__ == "__main__":
     app = DBApp()
+    app.protocol("WM_DELETE_WINDOW", app.exit_protocol)
     app.startup()
     app.mainloop()
 
